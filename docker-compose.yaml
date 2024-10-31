@@ -1,0 +1,27 @@
+version: "3.8"
+
+services:
+  fastapi:
+    build:
+      context: .
+    container_name: fastapi_app
+    depends_on:
+      - redis
+      - celery_worker
+    ports:
+      - "8000:8000"
+
+  redis:
+    image: "redis:alpine"
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+  celery_worker:
+    build:
+      context: .
+    deploy:
+      replicas: 3
+    command: celery -A app.celery_worker worker --loglevel=info
+    depends_on:
+      - redis
